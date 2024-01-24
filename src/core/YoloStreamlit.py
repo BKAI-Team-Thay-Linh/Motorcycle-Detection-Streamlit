@@ -1,5 +1,8 @@
 import os
+import shutil
 import sys
+
+import cv2
 sys.path.append(os.getcwd())  # NOQA
 
 import time
@@ -37,7 +40,7 @@ def load_yolo_model(model_path: str) -> YOLO:
     return YOLO(model_path)
 
 
-def infer_uploaded_image(model, **kwargs):
+def infer_image(model, **kwargs):
     """
     Perform inference on an uploaded image.
     Args:
@@ -62,3 +65,53 @@ def infer_uploaded_image(model, **kwargs):
             st.image(source_img, use_column_width=True)
 
     # TODO: Add a button to perform inference
+
+
+def infer_video(model, **kwargs):
+    pass
+
+
+def __camera_yolo(model, webcam_url: str, conf: float):
+    global is_video_playing
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        is_video_playing = True
+
+        # Render last run assets
+        shutil.rmtree('runs/detect', ignore_errors=True)
+        shutil.rmtree('runs/classify', ignore_errors=True)
+        shutil.rmtree('.temp/webcam_frame', ignore_errors=True)
+        os.makedirs('.temp/webcam_frame', exist_ok=True)
+
+    with col2:
+        if st.button("Stop Webcam"):
+            stop_video()
+
+    # Video Capture
+    cap = cv2.VideoCapture(webcam_url)
+    st_frame = st.empty()
+
+    while is_video_playing:
+        process_webcam()
+
+
+def __camera_classify(model, conf: float):
+    pass
+
+
+def infer_camera(model, **kwargs):
+    # If conf key exists, meaning we are using YOLO models
+    conf = kwargs.get("conf", None)
+    webcam_url = kwargs.get("webcam_url", None)
+
+    if not webcam_url:
+        st.error("Please enter a valid webcam URL")
+        return
+
+    if conf:
+        __camera_yolo(model, webcam_url, conf)
+    else:
+        # TODO: Implement classification camera inference
+        pass

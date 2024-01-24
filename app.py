@@ -90,13 +90,13 @@ class GUI():
         )
 
         if src_selectbox == config.SOURCES_LIST[0]:  # Image
-            infer_uploaded_image(self.model, conf=self.confidence)
-        # elif src_selectbox == config.SOURCES_LIST[1]:  # Video
-        #     infer_uploaded_video(self.confidence, self.model)
-        # elif src_selectbox == config.SOURCES_LIST[2]:  # Camera
-        #     webcam_url = st.sidebar.text_input("Enter Webcam URL")
-        #     if webcam_url:
-        #         infer_uploaded_webcam(self.confidence, self.model, webcam_url)
+            infer_image(self.model, conf=self.confidence)
+        elif src_selectbox == config.SOURCES_LIST[1]:  # Video
+            infer_video(self.model, conf=self.confidence)
+        elif src_selectbox == config.SOURCES_LIST[2]:  # Camera
+            webcam_url = st.sidebar.text_input("Enter Webcam URL")
+            if webcam_url:
+                infer_camera(self.model, webcam_url=webcam_url, conf=self.confidence)
 
     def _setup_sidebar(self):
         self.__model_config()
