@@ -1,0 +1,8 @@
+streamlit
+ultralytics
+streamlit_toggle
+opencv-python
+Pillow
+torch
+lightning
+torchvision
