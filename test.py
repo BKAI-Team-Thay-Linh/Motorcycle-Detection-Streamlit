@@ -50,6 +50,7 @@ def extract_and_save_frames(webcam_url: str, save_folder: str, fps: int = 30, vi
 
 
 def detect_bb(model_path: str, frames_folder: str, conf: float = 0.5):
+    start_time = time.time()
     frames = os.listdir(frames_folder)
     model = YOLO(model_path)
 
@@ -60,6 +61,8 @@ def detect_bb(model_path: str, frames_folder: str, conf: float = 0.5):
         if frame.endswith('.jpg'):
             frame_path = os.path.join(frames_folder, frame)
             model.predict(frame_path, conf=conf, save_txt=True, save_crop=True, classes=3)
+
+    print(f'Done. Total time: {time.time() - start_time:.2f}s')
 
 
 if __name__ == "__main__":
