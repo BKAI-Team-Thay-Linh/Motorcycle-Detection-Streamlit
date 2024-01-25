@@ -1,4 +1,5 @@
 from queue import Queue
+import time
 from typing import List
 from PIL import Image
 from ultralytics import YOLO
@@ -44,10 +45,7 @@ class Demo():
             # # Show frame
             # cv2.imshow("Webcam", frame)
 
-            if cv2.waitKey(interval) & 0xFF == ord('q'):
-                print("\nStopping...")
-                cap.release()
-                break
+            time.sleep(interval / 1000)
 
     def detect_frame_thread(self):
         while self.is_playing:
@@ -67,9 +65,7 @@ class Demo():
             frame = self.done_frame.get()
             cv2.imshow("Webcam", frame)
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("\nStopping...")
-                break
+            time.sleep(1 / self.fps)
 
     def run(self):
         self.is_playing = True
