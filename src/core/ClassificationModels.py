@@ -51,8 +51,8 @@ class MotorBikeModels(pl.LightningModule):
     def forward(self, x):
         return self.model(x)
 
-    def infer(self, image_path: str) -> int:
-        img_np = np.array(Image.open(image_path).convert('RGB'))
+    def infer(self, image: Image) -> int:
+        img_np = np.array(image.convert('RGB'))
         img = Transform()(img_np)
 
         self.eval()

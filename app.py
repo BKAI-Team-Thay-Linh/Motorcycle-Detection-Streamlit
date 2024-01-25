@@ -29,42 +29,19 @@ class GUI():
     def __model_config(self):
         st.sidebar.header("Model Configuration")
 
-        # Choosing task type
-        self.task_type = st.sidebar.selectbox(
-            "Select Task",
-            ["Detection", "Classify"],
-            key="task_type"
+        # Choose the classification model
+        choose_cls_model = st.sidebar.selectbox(
+            "Select Classification Model",
+            config.CLASSIFY_MODEL_LIST,
+            key="model_selectbox"
         )
 
-        # Render the available models based on the task type
-        if self.task_type == "Detection":
-            self.model_type = st.sidebar.selectbox(
-                "Select Model",
-                config.DETECTION_MODEL_LIST
-            )
-        elif self.task_type == "Classify":
-            self.model_type = st.sidebar.selectbox(
-                "Select Model",
-                config.CLASSIFY_MODEL_LIST
-            )
-        else:
-            st.error("Currently only 'Detection' function is implemented")
-
-        # Render model path
-        if self.model_type:
-            self.model_path = Path(config.DETECTION_MODEL_DIR, str(self.model_type))
-
-        # Loading pretrained DL model
-        try:
-            self.model = load_yolo_model(self.model_path)
-        except Exception as e:
-            tb = traceback.format_exc()
-            print(tb)
-            st.error(f"Unable to load model. Please check the specified path: {self.model_path}")
+        self.model = Path(config.CLASSIFY_MODEL_DIR, str(choose_cls_model))
+        print(f"==>> self.model: {self.model}")
 
         # Confidence threshold
         self.confidence = float(st.sidebar.slider(
-            "Select Model Confidence", 30, 100, 50)) / 100
+            "Select Model Confidence", 30, 100, 40)) / 100
 
         # Save toggle
         self.save_toggle = st.sidebar.checkbox(
@@ -94,7 +71,8 @@ class GUI():
         elif src_selectbox == config.SOURCES_LIST[1]:  # Video
             infer_video(self.model, conf=self.confidence)
         elif src_selectbox == config.SOURCES_LIST[2]:  # Camera
-            webcam_url = st.sidebar.text_input("Enter Webcam URL")
+            webcam_url = st.sidebar.text_input(
+                "Enter Webcam URL", value='rtsp://Cam2:Etcop2@2023Ai2@Cam26hc.cameraddns.net:556/Streaming/Channels/1')
             if webcam_url:
                 infer_camera(self.model, webcam_url=webcam_url, conf=self.confidence)
 

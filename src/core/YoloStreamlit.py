@@ -12,6 +12,7 @@ import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
 from src.core.Infer import _display_processed_frame
+from src.core.ClassificationModels import MotorBikeModels
 
 
 # Global variables to control the video status
@@ -77,6 +78,8 @@ def __camera_classify(model, conf: float):
 
 
 def infer_camera(model, **kwargs):
+    global is_video_playing
+
     # If conf key exists, meaning we are using YOLO models
     conf = kwargs.get("conf", None)
     webcam_url = kwargs.get("webcam_url", None)
@@ -97,18 +100,26 @@ def infer_camera(model, **kwargs):
 
     video_cap = cv2.VideoCapture(webcam_url)
     st_frame = st.empty()
+    model_type = None
 
     # Init the classification model
-    if model.lower().find('yolo') != -1:
+    if str(model).find('yolo') != -1:
         classification_model = YOLO(model)
+        model_type = 'yolo'
     else:
-        classification_model = model
+        model_name = os.path.basename(model).split('.')[0]
+        classification_model = MotorBikeModels(
+            model=model_name,
+            weight=model
+        )
+        model_type = 'classification'
 
     while is_video_playing:
         ret, frame = video_cap.read()
         if ret:
             _display_processed_frame(
-                classification_model=model,
+                model_type=model_type,
+                classification_model=classification_model,
                 frame=frame,
                 conf=conf,
                 st_frame=st_frame
