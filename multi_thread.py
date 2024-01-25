@@ -59,7 +59,7 @@ class Demo():
 
     def output_frame_thread(self):
         while self.is_playing:
-            if self.done_frame.empty():
+            if len(self.done_frame) <= 15:
                 continue
 
             frame = self.done_frame.get()
