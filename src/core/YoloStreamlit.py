@@ -98,6 +98,12 @@ def infer_camera(model, **kwargs):
     video_cap = cv2.VideoCapture(webcam_url)
     st_frame = st.empty()
 
+    # Init the classification model
+    if model.lower().find('yolo') != -1:
+        classification_model = YOLO(model)
+    else:
+        classification_model = model
+
     while is_video_playing:
         ret, frame = video_cap.read()
         if ret:
