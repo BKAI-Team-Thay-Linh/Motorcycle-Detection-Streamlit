@@ -27,7 +27,7 @@ class Demo():
         self.conf = conf
 
         # Model to detect bounding boxes
-        self.detection_model = YOLO(model='src/configs/weights/detection/yolov8m.pt').to('cpu')
+        self.detection_model = YOLO(model='src/configs/weights/detection/yolov8m.pt').to('cuda')
 
     def extract_frame_thread(self, cap: cv2.VideoCapture):
         interval = int(1000 / self.fps)
