@@ -1,8 +1,4 @@
-streamlit
+streamlit==1.22.0
 ultralytics
-streamlit_toggle
-opencv-python
-Pillow
-torch
-lightning
-torchvision
+opencv-python==4.7.0.72
+Pillow==9.5.0
