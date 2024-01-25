@@ -11,6 +11,7 @@ import streamlit as st
 
 from ultralytics import YOLO
 from PIL import Image
+from src.core.Infer import _display_processed_frame
 
 
 # Global variables to control the video status
@@ -71,32 +72,6 @@ def infer_video(model, **kwargs):
     pass
 
 
-def __camera_yolo(model, webcam_url: str, conf: float):
-    global is_video_playing
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        is_video_playing = True
-
-        # Render last run assets
-        shutil.rmtree('runs/detect', ignore_errors=True)
-        shutil.rmtree('runs/classify', ignore_errors=True)
-        shutil.rmtree('.temp/webcam_frame', ignore_errors=True)
-        os.makedirs('.temp/webcam_frame', exist_ok=True)
-
-    with col2:
-        if st.button("Stop Webcam"):
-            stop_video()
-
-    # Video Capture
-    cap = cv2.VideoCapture(webcam_url)
-    st_frame = st.empty()
-
-    while is_video_playing:
-        process_webcam()
-
-
 def __camera_classify(model, conf: float):
     pass
 
@@ -110,8 +85,25 @@ def infer_camera(model, **kwargs):
         st.error("Please enter a valid webcam URL")
         return
 
-    if conf:
-        __camera_yolo(model, webcam_url, conf)
-    else:
-        # TODO: Implement classification camera inference
-        pass
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button('Start Camera'):
+            is_video_playing = True
+
+    with col2:
+        if st.button('Stop Camera'):
+            stop_video()
+
+    video_cap = cv2.VideoCapture(webcam_url)
+    st_frame = st.empty()
+
+    while is_video_playing:
+        ret, frame = video_cap.read()
+        if ret:
+            _display_processed_frame(
+                classification_model=model,
+                frame=frame,
+                conf=conf,
+                st_frame=st_frame
+            )

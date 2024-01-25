@@ -55,6 +55,9 @@ def extract_and_save_frames(webcam_url: str, save_folder: str, fps: int = 30, vi
     print("\nDone")
     cap.release()
 
+    # Timestamp in seconds
+    timestamp = int(time.time())
+
 
 def detect_bb(model_path: str, frames_folder: str, conf: float = 0.5):
     frames = os.listdir(frames_folder)
@@ -90,6 +93,16 @@ def classify_bb(model_path: str, crops_folder: str, conf: float = 0.6):
     print(f'Done. Total time: {time.time() - start_time:.2f}s')
 
 
+def sort_files_numerically(directory):
+    print('==>> sort_files_numerically')
+    files = os.listdir(directory)
+
+    sorted_files = sorted(files, key=lambda x: int(x.split('_')[1].split('.')[0]))
+    print(f"==>> sorted_files: {sorted_files}")
+
+    return sorted_files
+
+
 def labels_to_csv(detect_labels_folder: str, classify_labels_folder: str,  csv_path: str):
     data = []
 
@@ -112,7 +125,7 @@ def labels_to_csv(detect_labels_folder: str, classify_labels_folder: str,  csv_p
     df['sort_key'] = df.iloc[:, 0].apply(lambda x: int(x.split('_')[1].split('.')[0]))
     df_sorted = df.sort_values('sort_key').drop('sort_key', axis=1)
 
-    for i, file in enumerate(sorted(os.listdir(classify_labels_folder))):
+    for i, file in enumerate(sort_files_numerically(classify_labels_folder)):
         if file.endswith('.txt'):
             label_path = os.path.join(classify_labels_folder, file)
             with open(label_path, 'r') as f:
@@ -216,43 +229,52 @@ def create_video_from_frames(input_folder_path, output_folder_path, fps: int = 3
     return output_folder_path
 
 
-if __name__ == "__main__":
-
+def run():
     video_stream_path = 'rtsp://Cam2:Etcop2@2023Ai2@Cam26hc.cameraddns.net:556/Streaming/Channels/1'
 
-    extract_and_save_frames(
-        webcam_url=video_stream_path,
-        save_folder='.temp/webcam_frame',
-        fps=30,
-        video_length=10
+    # extract_and_save_frames(
+    #     webcam_url=video_stream_path,
+    #     save_folder='.temp/webcam_frame',
+    #     fps=30,
+    #     video_length=10
+    # )
+
+    # detect_bb(
+    #     model_path='src/configs/weights/detection/yolov8m.pt',
+    #     frames_folder='.temp/webcam_frame',
+    #     conf=0.4
+    # )
+
+    # classify_bb(
+    #     model_path='src/configs/weights/classify/best.pt',
+    #     crops_folder='runs/detect/predict/crops/motorcycle',
+    #     conf=0.6
+    # )
+
+    # labels_to_csv(
+    #     detect_labels_folder='runs/detect/predict/labels',
+    #     classify_labels_folder='runs/classify/predict/labels',
+    #     csv_path='annotations/predict.csv'
+    # )
+
+    # draw_bounding_boxes_from_csv(
+    #     input_folder_path='.temp/webcam_frame',
+    #     output_folder_path='.temp/webcam_frame_annotated',
+    #     csv_file='annotations/predict.csv'
+    # )
+
+    # create_video_from_frames(
+    #     input_folder_path='.temp/webcam_frame_annotated',
+    #     output_folder_path='.temp/output/video.mp4',
+    #     fps=15
+    # )
+
+    a = sort_files_numerically(
+        directory='runs/classify/predict/labels'
     )
 
-    detect_bb(
-        model_path='src/configs/weights/detection/yolov8m.pt',
-        frames_folder='.temp/webcam_frame',
-        conf=0.4
-    )
+    print(a)
 
-    classify_bb(
-        model_path='src/configs/weights/classify/best.pt',
-        crops_folder='runs/detect/predict/crops/motorcycle',
-        conf=0.6
-    )
 
-    labels_to_csv(
-        detect_labels_folder='runs/detect/predict/labels',
-        classify_labels_folder='runs/classify/predict/labels',
-        csv_path='annotations/predict.csv'
-    )
-
-    draw_bounding_boxes_from_csv(
-        input_folder_path='.temp/webcam_frame',
-        output_folder_path='.temp/webcam_frame_annotated',
-        csv_file='annotations/predict.csv'
-    )
-
-    create_video_from_frames(
-        input_folder_path='.temp/webcam_frame_annotated',
-        output_folder_path='.temp/output/video.mp4',
-        fps=15
-    )
+if __name__ == '__main__':
+    run()
