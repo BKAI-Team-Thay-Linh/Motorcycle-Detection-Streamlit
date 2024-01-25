@@ -37,7 +37,9 @@ DETECTION_MODEL_LIST = [
 CLASSIFY_MODEL_DIR = ROOT / 'weights' / 'classify'
 YOLOv8lcls = CLASSIFY_MODEL_DIR / "best.pt"
 Resnet18 = CLASSIFY_MODEL_DIR / "resnet18.ckpt"
+MobileNetV3 = CLASSIFY_MODEL_DIR / "mobilenetv3_large.ckpt"
 CLASSIFY_MODEL_LIST = [
     "yolo.pt",
     "resnet18.ckpt",
+    "mobilenetv3_large.ckpt"
 ]
