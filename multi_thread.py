@@ -7,6 +7,8 @@ import cv2
 import threading
 import multiprocessing as mp
 
+import streamlit as st
+
 
 class Demo():
     def __init__(self, stream_url: str, fps: int = 30, conf: float = 0.4):
@@ -27,7 +29,7 @@ class Demo():
         self.conf = conf
 
         # Model to detect bounding boxes
-        self.detection_model = YOLO(model='src/configs/weights/detection/yolov8m.pt').to('cuda')
+        self.detection_model = YOLO(model='src/configs/weights/detection/yolov8m.pt').to('cpu')
 
     def extract_frame_thread(self, cap: cv2.VideoCapture):
         interval = int(1000 / self.fps)
@@ -53,17 +55,19 @@ class Demo():
                 continue
 
             frame = self.extracted_frame.get()
-            print(f"==>> frame: {frame}")
             detection_result = self.detection_model.predict(frame, conf=self.conf, classes=3)
             self.done_frame.put(detection_result[0].plot())  # DEMO the detection result
 
     def output_frame_thread(self):
+        st.title('Demo')
+        frame_vid = st.empty()
         while self.is_playing:
             if len(self.done_frame) <= 15:
                 continue
 
             frame = self.done_frame.get()
-            cv2.imshow("Webcam", frame)
+            # frame_vid.image(frame, channels='BGR')
+            cv2.imshow('Demo', frame)
 
             time.sleep(1 / self.fps)
 
@@ -75,15 +79,18 @@ class Demo():
 
         # Thread to extract frames
         extract_frame_thread = threading.Thread(target=self.extract_frame_thread, args=(cap,))
-        extract_frame_thread.start()
-
         # Thread to detect frames
         detect_frame_thread = threading.Thread(target=self.detect_frame_thread)
-        detect_frame_thread.start()
-
         # Thread to output frames
         output_frame_thread = threading.Thread(target=self.output_frame_thread)
+
+        extract_frame_thread.start()
+        detect_frame_thread.start()
         output_frame_thread.start()
+
+        extract_frame_thread.join()
+        detect_frame_thread.join()
+        output_frame_thread.join()
 
 
 if __name__ == '__main__':
